@@ -1,0 +1,15 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "framework": "vite",
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/$1" }
+  ],
+  "env": {
+    "SLACK_CLIENT_ID": "@slack-client-id",
+    "SLACK_CLIENT_SECRET": "@slack-client-secret",
+    "SLACK_SIGNING_SECRET": "@slack-signing-secret",
+    "FIREBASE_SERVICE_ACCOUNT": "@firebase-service-account",
+    "APP_URL": "https://nandakishore-goal-tracker.vercel.app"
+  }
+}
