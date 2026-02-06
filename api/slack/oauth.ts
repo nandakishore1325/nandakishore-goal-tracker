@@ -62,21 +62,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const result = await tokenResponse.json();
 
-    if (!result.ok || !result.access_token) {
-      throw new Error(`Slack OAuth failed: ${result.error || 'Unknown error'}`);
+    // For user tokens, the access_token is in authed_user object
+    const userAccessToken = result.authed_user?.access_token;
+    const userSlackId = result.authed_user?.id;
+
+    if (!result.ok || !userAccessToken) {
+      throw new Error(`Slack OAuth failed: ${result.error || 'Unknown error - no user token received'}`);
     }
 
-    // Store the token in Firestore
+    // Store the USER token in Firestore (not bot token)
     const tokenData = {
-      accessToken: result.access_token,
-      tokenType: result.token_type,
+      accessToken: userAccessToken,  // User's token for searching their mentions
+      tokenType: result.authed_user?.token_type || 'user',
       teamId: result.team?.id || '',
       teamName: result.team?.name || '',
-      botUserId: result.bot_user_id || '',
-      authedUserId: result.authed_user?.id || '',
-      scope: result.scope || '',
+      slackUserId: userSlackId,  // The user's Slack ID - needed to search for @mentions
+      scope: result.authed_user?.scope || '',
       isConnected: true,
       connectedAt: new Date(),
+      lastSyncAt: null,  // Will be set when first sync runs
     };
 
     // Save to user's integrations document

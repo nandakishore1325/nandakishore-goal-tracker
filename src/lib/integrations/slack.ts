@@ -8,22 +8,13 @@ const SLACK_API_BASE = 'https://slack.com/api'
 // Slack OAuth configuration
 const SLACK_CLIENT_ID = import.meta.env.VITE_SLACK_CLIENT_ID || ''
 
-// Cloud Function URL for OAuth callback
-const SLACK_OAUTH_CALLBACK_URL = `https://us-central1-nandakishore-goal-tracker.cloudfunctions.net/slackOAuthCallback`
+// Vercel API URL for OAuth callback
+const SLACK_OAUTH_CALLBACK_URL = `https://nandakishore-goal-tracker.vercel.app/api/slack/oauth`
 
-// Required Slack scopes for bot
-const SLACK_SCOPES = [
-  'channels:history',
-  'channels:read',
-  'groups:history',
-  'groups:read',
-  'im:history',
-  'im:read',
-  'mpim:history',
-  'mpim:read',
-  'users:read',
-  'reactions:read',
-  'app_mentions:read',
+// Required Slack USER scopes (not bot scopes) - for searching mentions
+const SLACK_USER_SCOPES = [
+  'search:read',  // Search for messages mentioning the user
+  'users:read',   // Get user info
 ].join(',')
 
 interface SlackIntegration {
@@ -47,7 +38,7 @@ export function getSlackAuthUrl(userId: string): string {
 
   const params = new URLSearchParams({
     client_id: SLACK_CLIENT_ID,
-    scope: SLACK_SCOPES,
+    user_scope: SLACK_USER_SCOPES,  // Use user_scope for user tokens (not bot)
     redirect_uri: SLACK_OAUTH_CALLBACK_URL,
     state,
   })
